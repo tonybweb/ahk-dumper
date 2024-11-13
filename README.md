@@ -1,16 +1,22 @@
 # Dumper
 An AutoHotkey V2 variable dumping tool for debugging and development.
 
+## Motivation
+In other languages I've grown accustomed to having nicely formatted indenting when debugging my applications. While I could get by with AHK's built-in `OutputDebug` or my editors debugger, I just found myself missing the ease of use of a `dump` or `console.log` type function.
+
 ## Features
-- nice indented formatting for object
+- nice indented formatting for objects
 - console output
 - string output
 - recursion protection
 - dump and exit app support
 
 ## Examples
-## Console Output
+### Console Output
 ```
+#Requires AutoHotkey v2.0
+#Include ".\Dumper.ahk"
+
 str := "foobar"
 dump(str)
 
@@ -63,7 +69,8 @@ dump(obj)
 ```
 ### String Output
 ```
-MsgBox(dumpToString(obj), "obj converted to string output")
+str := dumpToString(obj)
+MsgBox(str, "obj converted to string output")
 ```
 ![dumpToString Screenshot](dumpToString.png)
 ### Dump and Exit App
@@ -76,4 +83,9 @@ asdf
 ### Multiple Variables at Once
 ```
 dump(str, i, ary, obj)
+
+>
+"foobar"
+1234
+...
 ```
