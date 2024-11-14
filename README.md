@@ -78,7 +78,7 @@ MsgBox(str, "obj converted to string output")
 dumpAndExit("asdf")
 
 >
-asdf
+"asdf"
 ```
 ### Multiple Variables at Once
 ```
@@ -87,5 +87,5 @@ dump(str, i, ary, obj)
 >
 "foobar"
 1234
-...
+. . .
 ```
