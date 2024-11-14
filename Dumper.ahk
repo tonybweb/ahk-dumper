@@ -2,6 +2,7 @@
 
 dump(values*) => Dumper(1, values*)
 dumpAndExit(values*) => Dumper(1, values*).exit()
+dumpToMsgBox(value?) => Dumper(2, value?).msgBox()
 dumpToString(value?) => Dumper(2, value?).outputString
 
 class Dumper
@@ -120,6 +121,11 @@ class Dumper
       }
     }
     return false
+  }
+
+  msgBox()
+  {
+    MsgBox(this.outputString, "dumpToMsgBox")
   }
 
   output(value)

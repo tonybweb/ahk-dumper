@@ -8,6 +8,7 @@ In other languages I've grown accustomed to having nicely formatted indenting wh
 - nice indented formatting for objects
 - console output
 - string output
+- MsgBox output
 - recursion protection
 - dump and exit app support
 
@@ -72,7 +73,11 @@ dump(obj)
 str := dumpToString(obj)
 MsgBox(str, "obj converted to string output")
 ```
-![dumpToString Screenshot](dumpToString.png)
+### MsgBox Output
+```
+dumpToMsgBox(obj)
+```
+![dumpToMsgBox Screenshot](dumpToMsgBox.png)
 ### Dump and Exit App
 ```
 dumpAndExit("asdf")
