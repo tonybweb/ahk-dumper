@@ -3,6 +3,7 @@
 
 str := "string"
 dump(str)
+OutputDebug(dumpToString(str))
 
 ary := [1, 2, 3]
 dump(ary)
@@ -22,4 +23,4 @@ obj.helloWorld := {
 obj.objInObj := obj ;recursion protected
 dump(obj)
 
-MsgBox(dumpToString(obj), "obj converted to string output")
+dumpToMsgBox(obj)
