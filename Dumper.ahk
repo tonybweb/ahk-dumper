@@ -1,24 +1,56 @@
 #Requires AutoHotkey v2.0
+#Include "Ansi.ahk"
 
-dump(values*) => Dumper(1, values*)
-dumpAndExit(values*) => Dumper(1, values*).exit()
-dumpToMsgBox(value?) => Dumper(2, value?).msgBox()
-dumpToString(value?) => Dumper(2, value?).outputString
+dump(values*) => Dumper().setTheme("dracula").Call(values*)
+dumpAndExit(values*) => dump(values*).exit()
+dumpToMsgBox(value?) => Dumper(2).Call(value?).msgBox()
+dumpToString(value?) => Dumper(2).Call(value?).outputString
 
 class Dumper
 {
   INDENT_VALUE := "  "
-  MODE_DEFAULT := 1
+  MODE_CONSOLE := 1
   MODE_STRING := 2
+
+  THEMES := {
+    dracula: {
+      default: "fgFFFFFF -bg", ;white / default
+      string:  "fgF1FA8C -bg", ;yellow / default
+      operator: "fgFF79C6 -bg", ;magenta / default
+      numeric: "fgBC93DA -bg", ;purple / default
+      warning:  "fgFFFFFF bgFF5050" ;white / red
+    },
+    vsCode: {
+      default: "fg8ED2EB -bg", ;blue / default
+      string:  "fgD88B4D -bg", ;orange / default
+      operator: "fgE3D804 -bg", ;yellow / default
+      numeric: "fgFFFFFF -bg", ;white / default
+      warning:  "fgFFFFFF bgFF5050" ;white / red
+    }
+  }
 
   mode := 1
   outputString := ""
   protectedPtrs := []
+  theme := {
+    default: "",
+    string: "",
+    operator: "",
+    numeric: "",
+    warning: ""
+  }
 
-  __New(mode := 1, values*)
+  __New(mode := this.MODE_CONSOLE)
   {
     this.mode := mode
 
+    if (this.mode == this.MODE_CONSOLE) {
+      this.ansi := Ansi()
+    }
+  }
+
+  Call(values*)
+  {
     if (values.Length) {
       for value in values {
         this.protectedPtrs := []
@@ -34,7 +66,7 @@ class Dumper
     if (IsSet(value)) {
       if (IsObject(value)) {
         if(this.isRecursionProtected(value)) {
-          this.output("*RECURSION PROTECTED*")
+          this.output("*RECURSION PROTECTED*", this.theme.warning)
         } else {
           this.dumpObject(value, level)
         }
@@ -55,14 +87,18 @@ class Dumper
     this.protectedPtrs.InsertAt(level, ObjPtr(value))
 
     LB := "`n"
-    this.output("{")
+    this.output("{", this.theme.operator)
 
     itemLength := (HasProp(value, "__Item") && value.Length)
     propCount := ObjOwnPropCount(value)
 
     if (itemLength) {
       for i, val in value {
-        this.output(LB this.indent(level) "[" i "]: ")
+        this.output(
+          LB this.indent(level)
+          "[" this.theme.numeric i this.theme.default "]"
+          this.theme.operator ": "
+        )
         this.dump(val, level+1)
 
         if (i < itemLength || propCount) {
@@ -73,7 +109,7 @@ class Dumper
 
     if (propCount) {
       for prop, val in value.OwnProps() {
-        this.output(LB this.indent(level) prop ": ")
+        this.output(LB this.indent(level) prop this.theme.operator ": ",)
         this.dump(val, level+1)
 
         if (A_Index < propCount) {
@@ -86,7 +122,7 @@ class Dumper
       this.output(LB this.indent(level-1))
     }
 
-    this.output("}")
+    this.output("}", this.theme.operator)
 
     if (level > 1) {
       this.protectedPtrs.RemoveAt(level)
@@ -102,9 +138,9 @@ class Dumper
   {
     switch(Type(value)) {
       case "String":
-        return '"' value '"'
+        return this.theme.string '"' value '"'
       case "Integer", "Float":
-        return value
+        return this.theme.numeric value
     }
   }
 
@@ -128,13 +164,26 @@ class Dumper
     MsgBox(this.outputString, "dumpToMsgBox")
   }
 
-  output(value)
+  output(value, color := "")
   {
     switch (this.mode) {
-      case this.MODE_DEFAULT:
-        OutputDebug(value)
+      case this.MODE_CONSOLE:
+        OutputDebug(color value this.theme.default)
       case this.MODE_STRING:
         this.outputString .= value
     }
+  }
+
+  setTheme(theme := "dracula")
+  {
+    this.theme := {
+      default: this.ansi.escCode(this.THEMES.%theme%.default),
+      string: this.ansi.escCode(this.THEMES.%theme%.string),
+      operator: this.ansi.escCode(this.THEMES.%theme%.operator),
+      numeric: this.ansi.escCode(this.THEMES.%theme%.numeric),
+      warning: this.ansi.escCode(this.THEMES.%theme%.warning)
+    }
+
+    return this
   }
 }
