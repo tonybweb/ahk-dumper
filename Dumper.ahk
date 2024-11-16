@@ -59,6 +59,8 @@ class Dumper
     } else {
       this.dump()
     }
+
+    return this
   }
 
   dump(value?, level := 1)
