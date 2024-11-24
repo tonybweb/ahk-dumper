@@ -91,7 +91,7 @@ class Dumper
     LB := "`n"
     this.output("{", this.theme.operator)
 
-    itemLength := (HasProp(value, "__Item") && value.Length)
+    itemLength := (HasProp(value, "__Item") && HasProp(value, "Length")) && value.Length
     propCount := ObjOwnPropCount(value)
 
     if (itemLength) {
