@@ -91,19 +91,26 @@ class Dumper
     LB := "`n"
     this.output("{", this.theme.operator)
 
-    itemLength := (HasProp(value, "__Item") && HasProp(value, "Length")) && value.Length
+    itemLength := (HasProp(value, "__Item") && HasProp(value, "Length")) ? value.Length : 0
+    mapCount := (HasProp(value, "__Enum") && HasProp(value, "Count")) ? value.Count : 0
     propCount := ObjOwnPropCount(value)
 
-    if (itemLength) {
-      for i, val in value {
+    if (itemLength || mapCount) {
+      for key, val in value {
+        if (itemLength) {
+          key := this.theme.numeric key this.theme.default
+        } else {
+          key := this.theme.string '"' key '"' this.theme.default
+        }
+
         this.output(
           LB this.indent(level)
-          "[" this.theme.numeric i this.theme.default "]"
+          "[" key "]"
           this.theme.operator ": "
         )
         this.dump(val, level+1)
 
-        if (i < itemLength || propCount) {
+        if (A_Index < itemLength || A_Index < mapCount || propCount) {
           this.output(",")
         }
       }
@@ -120,7 +127,7 @@ class Dumper
       }
     }
 
-    if (propCount || itemLength) {
+    if (itemLength || mapCount || propCount) {
       this.output(LB this.indent(level-1))
     }
 

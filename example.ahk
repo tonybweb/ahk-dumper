@@ -8,6 +8,9 @@ OutputDebug(dumpToString(str))
 ary := [1, 2, 3]
 dump(ary)
 
+aryMap := Map("foo", "bar", "asdf", "jkl;")
+dump(aryMap)
+
 i := 1234
 dump(i)
 

@@ -45,6 +45,16 @@ dump(ary)
 }
 ```
 ```
+aryMap := Map("foo", "bar", "asdf", "jkl;")
+dump(aryMap)
+
+>
+{
+  ["asdf"]: "jkl;",
+  ["foo"]: "bar"
+}
+```
+```
 obj := ary
 obj.helloWorld := {
   foo: "bar",
