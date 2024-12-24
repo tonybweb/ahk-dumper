@@ -2,6 +2,7 @@
 #Include "Ansi.ahk"
 
 dump(values*) => Dumper().setTheme("dracula").Call(values*)
+dumpLoud(values*) => Dumper().setTheme("loud").Call(values*)
 dumpAndExit(values*) => dump(values*).exit()
 dumpToMsgBox(value?) => Dumper(2).Call(value?).msgBox()
 dumpToString(value?) => Dumper(2).Call(value?).outputString
@@ -20,6 +21,13 @@ class Dumper
       numeric: "fgBC93DA -bg", ;purple / default
       warning:  "fgFFFFFF bgFF5050" ;white / red
     },
+    loud: {
+      default: "fgFFFFFF bgEE5050", ;white / default
+      string:  "fgFFFF00 bgEE5050", ;yellow / default
+      operator: "fg000000 bgEE5050", ;magenta / default
+      numeric: "fgCCCCCC bgEE5050", ;purple / default
+      warning:  "fgFF0000 bg00FFFF" ;white / red
+    },
     vsCode: {
       default: "fg8ED2EB -bg", ;blue / default
       string:  "fgD88B4D -bg", ;orange / default
@@ -29,7 +37,7 @@ class Dumper
     }
   }
 
-  mode := 1
+  mode := this.MODE_CONSOLE
   outputString := ""
   protectedPtrs := []
   theme := {
