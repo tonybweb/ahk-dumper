@@ -67,6 +67,9 @@ class Dumper
     } else {
       this.dump()
     }
+    if (this.mode == this.MODE_CONSOLE) {
+      this.resetAnsi()
+    }
 
     return this
   }
@@ -202,5 +205,10 @@ class Dumper
     }
 
     return this
+  }
+
+  resetAnsi()
+  {
+    OutputDebug(this.ansi.escCode("-fg -bg"))
   }
 }
