@@ -1,8 +1,7 @@
 # Dumper
 An AutoHotkey V2 variable dumping tool for debugging and development.
 
-<img src="Resources\debugConsole.png" alt="Debug Console" width="49%"/>
-<img src="Resources\guiAndSysTray.png" alt="GUI and SysTray" width="49%"/>
+<img src="Resources\debugConsole.png" alt="Debug Console" width="49%"/><img src="Resources\guiAndSysTray.png" alt="GUI and SysTray" width="49%"/>
 
 ## Motivation
 In other languages I've grown accustomed to having nicely formatted indenting when debugging my applications. While I could get by with AHK's built-in `OutputDebug` or my editors debugger, I just found myself missing the ease of use of a `dump` or `console.log` type function. I also just really dislike the standard suggestion of "use `MsgBox()` or `ToolTip()`".
