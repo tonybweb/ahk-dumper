@@ -1,4 +1,4 @@
-#Requires AutoHotkey v2.0
+#Requires AutoHotkey v2
 ; https://en.wikipedia.org/wiki/ANSI_escape_code#Control_Sequence_Introducer_commands
 
 class Ansi {

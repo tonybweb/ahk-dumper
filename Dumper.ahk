@@ -1,17 +1,20 @@
-#Requires AutoHotkey v2.0
-#Include "Ansi.ahk"
+#Requires AutoHotkey v2
+#Include "Lib\Ansi.ahk"
 
 dump(values*) => Dumper().setTheme("dracula").Call(values*)
+dumpAnsi(values*) => Dumper(3).setTheme("dracula").Call(values*).outputString
+dumpExit(values*) => dump(values*).exit()
 dumpLoud(values*) => Dumper().setTheme("loud").Call(values*)
-dumpAndExit(values*) => dump(values*).exit()
-dumpToMsgBox(value?) => Dumper(2).Call(value?).msgBox()
-dumpToString(value?) => Dumper(2).Call(value?).outputString
+dumpMsgBox(values*) => Dumper(2).Call(values*).msgBox()
+dumpString(values*) => Dumper(2).Call(values*).outputString
 
 class Dumper
 {
+  static RECURSION_NOTE := " * RECURSION PROTECTED * "
   INDENT_VALUE := "  "
   MODE_CONSOLE := 1
   MODE_STRING := 2
+  MODE_WITH_ANSI := 3
 
   THEMES := {
     dracula: {
@@ -52,7 +55,7 @@ class Dumper
   {
     this.mode := mode
 
-    if (this.mode == this.MODE_CONSOLE) {
+    if (this.mode == this.MODE_CONSOLE || this.mode == this.MODE_WITH_ANSI) {
       this.ansi := Ansi()
     }
   }
@@ -79,7 +82,7 @@ class Dumper
     if (IsSet(value)) {
       if (IsObject(value)) {
         if(this.isRecursionProtected(value)) {
-          this.output("*RECURSION PROTECTED*", this.theme.warning)
+          this.output(Dumper.RECURSION_NOTE, this.theme.warning)
         } else {
           this.dumpObject(value, level)
         }
@@ -97,6 +100,9 @@ class Dumper
 
   dumpObject(value, level := 1)
   {
+    ; if (Type(value) == "ComObject" || Type(value) == "ComValue") {
+    ;   return
+    ; }
     this.protectedPtrs.InsertAt(level, ObjPtr(value))
 
     LB := "`n"
@@ -191,6 +197,8 @@ class Dumper
         OutputDebug(color value this.theme.default)
       case this.MODE_STRING:
         this.outputString .= value
+      case this.MODE_WITH_ANSI:
+        this.outputString .= color value this.theme.default
     }
   }
 
