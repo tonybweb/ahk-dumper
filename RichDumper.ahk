@@ -67,7 +67,6 @@ class RichDump
 
   captureError(exception, mode) {
     this.prepareLog()
-    dump(exception)
     RichDump.log .= exception.Message ? "Error: " exception.Message "`n`n" : ""
     RichDump.log .= exception.Extra ? "Specifically: " exception.Extra "`n`n" : ""
     RichDump.log .= exception.Line ? "Line #" exception.Line ": " RegExReplace(RegExReplace(exception.Stack, "s)\R.+", ""), "^.+\[.+\]\s", "") "`n" : ""

@@ -59,11 +59,11 @@ class Highlighter {
 	)
 	static builtins := "A_\w+|true|false|this|super"
   static errors :="Error|Specifically|Call Stack|Line #\d+"
-  static loud := " \* RECURSION PROTECTED \* |\d+:"
+  static loud := " \* [^*]* \* |\d+:"
 	static needle := (
 		"ims)"
 		"((?:^|\s);[^\n]+)"          ; Comments
-		"|(" this.loud ")"  ; RECURSION PROTECTED
+		"|(" this.loud ")"  ; * RECURSION PROTECTED * , * ComObject *
 		"|(^\s*/\*.*?(?:^\s*\*\/|\*/\s*$|\z))"    ; Multiline comments
 		"|(^\s*#\w+\b(?!:)(?:(?<!HotIf)[^\n]*)?)" ; Directives
 		"|([$#+*!~&/\\<>^|=?:().``%}{\-]+)"   ; Punctuation

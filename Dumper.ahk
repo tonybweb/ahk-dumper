@@ -83,6 +83,8 @@ class Dumper
       if (IsObject(value)) {
         if(this.isRecursionProtected(value)) {
           this.output(Dumper.RECURSION_NOTE, this.theme.warning)
+        } else if (Type(value) == "ComObject" || Type(value) == "ComValue") {
+          this.output(" * " Type(value) " * ", this.theme.warning)
         } else {
           this.dumpObject(value, level)
         }
@@ -100,9 +102,6 @@ class Dumper
 
   dumpObject(value, level := 1)
   {
-    ; if (Type(value) == "ComObject" || Type(value) == "ComValue") {
-    ;   return
-    ; }
     this.protectedPtrs.InsertAt(level, ObjPtr(value))
 
     LB := "`n"
