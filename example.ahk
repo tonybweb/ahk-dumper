@@ -1,9 +1,9 @@
 #Requires AutoHotkey v2.0
-#Include ".\Dumper.ahk"
+#Include ".\RichDumper.ahk"
 
 str := "string"
 dump(str)
-OutputDebug(dumpToString(str))
+OutputDebug(dumpString(str))
 
 ary := [1, 2, 3]
 dump(ary)
@@ -26,4 +26,5 @@ obj.helloWorld := {
 obj.objInObj := obj ;recursion protected
 dump(obj)
 
-dumpToMsgBox(obj)
+dumpMsgBox(obj)
+dumpGui(obj)
