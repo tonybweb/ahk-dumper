@@ -11,9 +11,10 @@ In other languages I've grown accustomed to having nicely formatted indenting wh
 - console output
 - string output
 - MsgBox output
-- Built-in GUI output with autosizing
+- Built-in GUI output
   - syntax highlighting
   - error capturing
+  - remembers size and position
 - recursion protection
 - dump and exit app support
 - customizable Console and GUI theme support
@@ -156,12 +157,10 @@ Once a debugger extension is installed and configured `F5` will run your current
 ### I don't have the Fira Code font, where do I get it?
 It's in the Resources\FiraCode font folder. Install it and you should be all set.
 ### I don't like the Fira Code font, I want to use another font.
-That's fine, use whatever font you want but you'll have to adjust the constants at the top of the `RichDumper.ahk` file. If you don't adjust the constants the auto sizing of the GUI and the scrollbar visilility won't work correctly. Specifically these:
+That's fine, use whatever font you want but you'll have to adjust the constants at the top of the `RichDumper.ahk` file. If you don't adjust the constants the show/hide scrollbar functionality won't work correctly. Specifically these:
 ```
   FONT := "Fira Code"
   FONT_SIZE := 14
   CHAR_WIDTH := 11
   LINE_HEIGHT := 31
 ```
-### I don't like that the GUI always opens on the right side of my screen.
-Fair enough, this can be adjusted by editing the `SetGuiSize()` function inside of `RichDumper.ahk`. If there is interest for different behavior I'll explore adding it. Otherwise this current behavior suits my needs.

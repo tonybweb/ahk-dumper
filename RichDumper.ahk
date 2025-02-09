@@ -1,6 +1,7 @@
 #Requires AutoHotkey v2
 
 #Include "Dumper.ahk"
+#Include "Lib\Ini.ahk"
 #Include "Lib\RichCode\Highlighter.ahk"
 #Include "Lib\RichCode\RichCode.ahk"
 #Include "Lib\RichThemes.ahk"
@@ -12,29 +13,23 @@ class RichDump
 {
   static log := ""
 
+  CHAR_WIDTH := 11
   DEFAULT_THEME := "dracula"
+  DWMWA_USE_IMMERSIVE_DARK_MODE := 20
   EMPTY_LOG_MESSAGE := ";log empty, use ``dumpGui()`` to output to this window`n`n`n`n`n"
   FONT := "Fira Code"
   FONT_SIZE := 14
-  CHAR_WIDTH := 11
   LINE_HEIGHT := 31
   MARGIN := 16
-  DWMWA_USE_IMMERSIVE_DARK_MODE := 20
-  WIDTH := A_ScreenWidth / 4
-  HEIGHT := A_ScreenHeight / 2
-  TITLE_BAR_HEIGHT := 32
-  SCREEN_OFFSET := 200
+  WM_EXITSIZEMOVE := 0x0232
   WS_HSCROLL := 0x100000
   WS_VSCROLL := 0x200000
 
   allowScrollToEnd := true
+  iniFile := "dumper.ini"
   log := {
     lines: 0,
     lineLength: 0,
-    px: {
-      x: this.WIDTH,
-      y: this.HEIGHT
-    },
   }
   gui := ""
   settings := {
@@ -56,6 +51,43 @@ class RichDump
     this.settings.FGColor := RichThemes.%theme%.FGColor
     this.settings.BGColor := RichThemes.%theme%.BGColor
     this.settings.colors := RichThemes.%theme%.colors
+
+    if (! A_IsCompiled) {
+      this.iniFile := StrSplit(A_LineFile, "RichDumper.ahk")[1] this.iniFile
+    }
+
+    this.ini := Ini(this.iniFile)
+    if (! this.ini.hasFile) {
+      this.ini.contents := {
+        general: {
+          w: width := A_ScreenWidth / 4 + (this.MARGIN * 2),
+          h: height := A_ScreenHeight / 3 (this.MARGIN * 2),
+          x: A_ScreenWidth / 2 - (width / 2),
+          y: A_ScreenHeight / 2 - (height / 2)
+        }
+      }
+      this.ini.save()
+    }
+    this.registerSystemCallbacks()
+  }
+
+  registerSystemCallbacks() {
+    OnMessage(this.WM_EXITSIZEMOVE, WindowMovedOrResized)
+
+    WindowMovedOrResized(wParam, lParam, msg, hwnd)
+    {
+      if (this.gui != "") {
+        if (hwnd == this.gui.hwnd) {
+          this.gui.GetPos(
+            &this.ini.contents.general.x,
+            &this.ini.contents.general.y,
+            &this.ini.contents.general.w,
+            &this.ini.contents.general.h,
+          )
+          this.ini.save()
+        }
+      }
+    }
   }
 
   addToSysTray()
@@ -111,7 +143,7 @@ class RichDump
     this.gui.OnEvent("Size", (*) => SizeContents())
 
     RichCode.MenuItems := []
-    this.rc := RichCode(this.gui, this.settings, "xm w" this.WIDTH " h" this.HEIGHT)
+    this.rc := RichCode(this.gui, this.settings, "xm w" this.ini.contents.general.w " h" this.ini.contents.general.h)
     DarkScrollBars()
     DarkInactiveState()
 
@@ -170,7 +202,7 @@ class RichDump
     }
     this.rc.Text := RichDump.log
     SetLogProperties()
-    SetGuiSize()
+    SetGuiSizeAndPosition()
     ScrollToEnd()
 
     SetLogProperties() {
@@ -180,21 +212,13 @@ class RichDump
         }
         this.log.lines := A_Index
       }
-      this.log.px.x := Min(
-        this.CHAR_WIDTH * this.log.lineLength + (this.MARGIN * 3),
-        (A_ScreenWidth / 2) - (this.MARGIN * 2)
-      )
-      this.log.px.y := Min(
-        this.LINE_HEIGHT * this.log.lines + (this.MARGIN * 2),
-        A_ScreenHeight - (this.MARGIN * 2) - this.TITLE_BAR_HEIGHT - this.SCREEN_OFFSET
-      )
     }
-    SetGuiSize() {
+    SetGuiSizeAndPosition() {
       this.gui.Move(
-        A_ScreenWidth - this.log.px.x + (this.MARGIN * 2) - this.SCREEN_OFFSET,
-        A_ScreenHeight - this.log.px.y + (this.MARGIN * 2) - this.SCREEN_OFFSET,
-        this.log.px.x + (this.MARGIN * 2),
-        this.log.px.y + (this.MARGIN * 2) + this.TITLE_BAR_HEIGHT,
+        this.ini.contents.general.x,
+        this.ini.contents.general.y,
+        this.ini.contents.general.w,
+        this.ini.contents.general.h,
       )
     }
     ScrollToEnd() {
