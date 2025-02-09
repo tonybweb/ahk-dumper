@@ -164,3 +164,12 @@ That's fine, use whatever font you want but you'll have to adjust the constants 
   CHAR_WIDTH := 11
   LINE_HEIGHT := 31
 ```
+### How should I include Dumper in my script?
+There are three ways to include Dumper, choose only 1:
+```
+#Requires AutoHotkey v2
+
+#Include <ahk-dumper\Dumper> ;minimalist, no GUI support, debug console support only
+#Include <ahk-dumper\RichDumper> ;Includes GUI
+#Include <ahk-dumper\RichDumper_ErrorCapturing> ;Includes GUI with Error Capturing (recommended)
+```
