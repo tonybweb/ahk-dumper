@@ -1,5 +1,6 @@
 #Requires AutoHotkey v2
 #Include "Lib\Ansi.ahk"
+#Include "Lib\Arrays.ahk"
 
 dump(values*) => Dumper().setTheme("dracula").Call(values*)
 dumpAnsi(values*) => Dumper(3).setTheme("dracula").Call(values*).outputString
@@ -15,6 +16,11 @@ class Dumper
   MODE_CONSOLE := 1
   MODE_STRING := 2
   MODE_WITH_ANSI := 3
+
+  ANSI_MODES := [
+    this.MODE_CONSOLE,
+    this.MODE_WITH_ANSI
+  ]
 
   THEMES := {
     dracula: {
@@ -55,7 +61,7 @@ class Dumper
   {
     this.mode := mode
 
-    if (this.mode == this.MODE_CONSOLE || this.mode == this.MODE_WITH_ANSI) {
+    if (this.ANSI_MODES.In(this.mode)) {
       this.ansi := Ansi()
     }
   }
@@ -176,12 +182,7 @@ class Dumper
 
   isRecursionProtected(value)
   {
-    for ptr in this.protectedPtrs {
-      if (ptr == ObjPtr(value)) {
-        return true
-      }
-    }
-    return false
+    return this.protectedPtrs.In(ObjPtr(value))
   }
 
   msgBox()
