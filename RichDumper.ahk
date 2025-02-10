@@ -126,10 +126,10 @@ class RichDump
     this.prepareLog()
     if (values.Length) {
       for value in values {
-        RichDump.log .= dumpString(value) "`n"
+        RichDump.log .= dumpString(value)
       }
     } else {
-      RichDump.log .= dumpString(values) "`n"
+      RichDump.log .= dumpString(values)
     }
     this.showGui()
   }
