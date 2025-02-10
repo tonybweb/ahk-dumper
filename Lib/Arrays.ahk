@@ -1,6 +1,6 @@
 #Requires AutoHotkey v2
 
-Array.Prototype.DefineProp("In", {
+Array.Prototype.DefineProp("Contains", {
   Call: (haystack, needle) {
     for (k,v in haystack) {
       if (needle == v) {

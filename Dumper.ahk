@@ -61,7 +61,7 @@ class Dumper
   {
     this.mode := mode
 
-    if (this.ANSI_MODES.In(this.mode)) {
+    if (this.ANSI_MODES.Contains(this.mode)) {
       this.ansi := Ansi()
     }
   }
@@ -182,7 +182,7 @@ class Dumper
 
   isRecursionProtected(value)
   {
-    return this.protectedPtrs.In(ObjPtr(value))
+    return this.protectedPtrs.Contains(ObjPtr(value))
   }
 
   msgBox()
