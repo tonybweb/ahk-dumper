@@ -195,7 +195,7 @@ class RichDump
     if (this.gui == "") {
       this.loadGui()
     } else {
-      this.gui.show()
+      this.gui.show("NoActivate")
     }
     if (RichDump.log == "") {
       RichDump.log := this.EMPTY_LOG_MESSAGE
