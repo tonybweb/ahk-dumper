@@ -15,6 +15,11 @@ In other languages I've grown accustomed to having nicely formatted indenting wh
   - syntax highlighting
   - error capturing
   - remembers size and position
+  - configurable stop on error
+  - pause / resume
+  - clear log
+  - restart / exit app
+  - can be auto added to your AHK systray
 - recursion protection
 - dump and exit app support
 - customizable Console and GUI theme support

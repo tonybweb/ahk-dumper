@@ -59,11 +59,13 @@ class Highlighter {
 	)
 	static builtins := "A_\w+|true|false|this|super"
   static errors :="Error|Specifically|Call Stack|Line #\d+"
-  static loud := " \* [^*]* \* |\d+:"
+  static success := " \* Resumed \* "
+  static danger := " \* [^\n|*]* \* |\d+:"
 	static needle := (
 		"ims)"
 		"((?:^|\s);[^\n]+)"          ; Comments
-		"|(" this.loud ")"  ; * RECURSION PROTECTED * , * ComObject *
+		"|(" this.success ")"  ; * Resumed *
+		"|(" this.danger ")"  ; * RECURSION PROTECTED * , * ComObject *
 		"|(^\s*/\*.*?(?:^\s*\*\/|\*/\s*$|\z))"    ; Multiline comments
 		"|(^\s*#\w+\b(?!:)(?:(?<!HotIf)[^\n]*)?)" ; Directives
 		"|([$#+*!~&/\\<>^|=?:().``%}{\-]+)"   ; Punctuation
@@ -89,18 +91,19 @@ class Highlighter {
 				EscapeRTF(SubStr(Code, Pos, FoundPos - Pos))
 				"\cf" (
 					Match.1 != "" && Map.Comments ||
-					Match.2 != "" && (Map.Plain highlight := " \Highlight" Map.Loud) ||
-					Match.3 != "" && Map.Multiline ||
-					Match.4 != "" && Map.Directives ||
-					Match.5 != "" && Map.Punctuation ||
-					Match.6 != "" && Map.Numbers ||
-					Match.7 != "" && Map.Strings ||
-					Match.8 != "" && Map.A_Builtins ||
-					Match.9 != "" && Map.Errors ||
-					Match.10 != "" && Map.Flow ||
-					Match.11 != "" && Map.Commands ||
-					Match.12 != "" && Map.Keynames ||
-					Match.13 != "" && Map.Functions ||
+					Match.2 != "" && (Map.BG highlight := " \Highlight" Map.Success) ||
+					Match.3 != "" && (Map.Plain highlight := " \Highlight" Map.Danger) ||
+					Match.4 != "" && Map.Multiline ||
+					Match.5 != "" && Map.Directives ||
+					Match.6 != "" && Map.Punctuation ||
+					Match.7 != "" && Map.Numbers ||
+					Match.8 != "" && Map.Strings ||
+					Match.9 != "" && Map.A_Builtins ||
+					Match.10 != "" && Map.Errors ||
+					Match.11 != "" && Map.Flow ||
+					Match.12 != "" && Map.Commands ||
+					Match.13 != "" && Map.Keynames ||
+					Match.14 != "" && Map.Functions ||
 					Map.Plain
 				) " "
 				EscapeRTF(Match.0)

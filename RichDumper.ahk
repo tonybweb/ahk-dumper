@@ -1,5 +1,6 @@
 #Requires AutoHotkey v2
 
+#Include "Lib\ColorButton.ahk\ColorButton.ahk"
 #Include "Dumper.ahk"
 #Include "Lib\Ini.ahk"
 #Include "Lib\RichCode\Highlighter.ahk"
@@ -13,12 +14,17 @@ class RichDump
 {
   static log := ""
 
+  BUTTONS := {
+    H: 35,
+    W: 90,
+  }
   CHAR_WIDTH := 11
   DEFAULT_THEME := "dracula"
   DWMWA_USE_IMMERSIVE_DARK_MODE := 20
   EMPTY_LOG_MESSAGE := ";log empty, use ``dumpGui()`` to output to this window`n`n`n`n`n"
   FONT := "Fira Code"
   FONT_SIZE := 14
+  FONT_SIZE_BTN := 12
   LINE_HEIGHT := 31
   MARGIN := 16
   WM_EXITSIZEMOVE := 0x0232
@@ -47,44 +53,75 @@ class RichDump
     if (! RichThemes.HasProp(theme)) {
       theme := this.DEFAULT_THEME
     }
-    this.settings.guiMarginColor := RichThemes.%theme%.guiMarginColor
-    this.settings.FGColor := RichThemes.%theme%.FGColor
-    this.settings.BGColor := RichThemes.%theme%.BGColor
-    this.settings.colors := RichThemes.%theme%.colors
+    this.theme := RichThemes.%theme%
 
-    if (! A_IsCompiled) {
-      this.iniFile := StrSplit(A_LineFile, "RichDumper.ahk")[1] this.iniFile
-    }
+    this.settings.guiMarginColor := this.theme.guiMarginColor
+    this.settings.FGColor := this.theme.FGColor
+    this.settings.BGColor := this.theme.BGColor
+    this.settings.colors := this.theme.colors
 
-    this.ini := Ini(this.iniFile)
-    if (! this.ini.hasFile) {
-      this.ini.contents := {
-        general: {
-          w: width := A_ScreenWidth / 4 + (this.MARGIN * 2),
-          h: height := A_ScreenHeight / 3 (this.MARGIN * 2),
-          x: A_ScreenWidth / 2 - (width / 2),
-          y: A_ScreenHeight / 2 - (height / 2)
+    IniHandler()
+    RegisterSystemCallbacks()
+
+    return
+
+    IniHandler()
+    {
+      if (! A_IsCompiled) {
+        this.iniFile := StrSplit(A_LineFile, "RichDumper.ahk")[1] this.iniFile
+      }
+
+      this.ini := Ini(this.iniFile)
+      iniDefaults := {
+        w: width := A_ScreenWidth / 4 + (this.MARGIN * 2),
+        h: height := A_ScreenHeight / 3 (this.MARGIN * 2),
+        x: A_ScreenWidth / 2 - (width / 2),
+        y: A_ScreenHeight / 2 - (height / 2),
+        stopOnError: 1
+      }
+
+      if (this.ini.hasFile) {
+        AddMissingDefaults()
+      } else {
+        SaveDefaults()
+      }
+
+      SaveDefaults() {
+        this.ini.contents := {
+          general: iniDefaults
+        }
+        this.ini.save()
+      }
+      AddMissingDefaults()
+      {
+        saveIni := false
+        for propertyName, value in iniDefaults.OwnProps() {
+          if (! this.ini.contents.general.HasProp(propertyName)) {
+            this.ini.contents.general.%propertyName% := value
+            saveIni := true
+          }
+        }
+        if (saveIni) {
+          this.ini.save()
         }
       }
-      this.ini.save()
     }
-    this.registerSystemCallbacks()
-  }
 
-  registerSystemCallbacks() {
-    OnMessage(this.WM_EXITSIZEMOVE, WindowMovedOrResized)
+    RegisterSystemCallbacks() {
+      OnMessage(this.WM_EXITSIZEMOVE, WindowMovedOrResized)
 
-    WindowMovedOrResized(wParam, lParam, msg, hwnd)
-    {
-      if (this.gui != "") {
-        if (hwnd == this.gui.hwnd) {
-          this.gui.GetPos(
-            &this.ini.contents.general.x,
-            &this.ini.contents.general.y,
-            &this.ini.contents.general.w,
-            &this.ini.contents.general.h,
-          )
-          this.ini.save()
+      WindowMovedOrResized(wParam, lParam, msg, hwnd)
+      {
+        if (this.gui != "") {
+          if (hwnd == this.gui.hwnd) {
+            this.gui.GetPos(
+              &this.ini.contents.general.x,
+              &this.ini.contents.general.y,
+              &this.ini.contents.general.w,
+              &this.ini.contents.general.h,
+            )
+            this.ini.save()
+          }
         }
       }
     }
@@ -118,6 +155,10 @@ class RichDump
 
     RichDump.log .= exception.Stack ? "`n" 'Call Stack: `n' exception.Stack : ""
     this.showGui()
+
+    if (this.ini.contents.general.stopOnError) {
+      this.pauseHandler(1)
+    }
     return true
   }
 
@@ -136,29 +177,92 @@ class RichDump
 
   loadGui()
   {
-    this.gui := Gui("+Resize +AlwaysOnTop", "Dumper - " A_ScriptName)
+    this.gui := Gui("+Resize +AlwaysOnTop +MinSize590x180", "Dumper - " A_ScriptName)
+    this.gui.SetFont("s" this.FONT_SIZE_BTN " cFFFFFF")
     this.gui.MarginX := this.gui.MarginY := this.MARGIN
     this.gui.BackColor := this.settings.guiMarginColor
     this.gui.OnEvent("Close", (*) => this.gui.hide())
-    this.gui.OnEvent("Size", (*) => SizeContents())
+    this.gui.OnEvent("Size", (*) => PositionContents())
+
+    this.gui.clearBtn := this.gui.AddButton("Section XM W" this.BUTTONS.W  " H" this.BUTTONS.H, "Clear")
+    this.gui.clearBtn.SetColor(this.theme.buttons.default.bg, this.theme.buttons.default.fg)
+    this.gui.clearBtn.OnEvent("Click", (*) => Clear())
+
+    this.gui.pauseBtn := this.gui.AddButton("WP HP X+" this.MARGIN, "Pause")
+    this.gui.pauseBtn.SetColor(this.theme.buttons.danger.bg, this.theme.buttons.danger.fg)
+    this.gui.pauseBtn.OnEvent("Click", (*) => this.pauseHandler())
+
+    this.gui.stopOnError := this.gui.AddCheckBox(
+      "H" this.BUTTONS.H " X+" this.MARGIN " Checked" (this.ini.contents.general.stopOnError ?? "0"),
+      "Stop On Error"
+    )
+    this.gui.stopOnError.OnEvent("Click", (*) => StopOnErrorHandler())
+
+    this.gui.restartBtn := this.gui.AddButton("X+" this.MARGIN " W" this.BUTTONS.W  " H" this.BUTTONS.H, "Restart")
+    this.gui.restartBtn.SetColor(this.theme.buttons.default.bg, this.theme.buttons.default.fg)
+    this.gui.restartBtn.OnEvent("Click", (*) => Reload())
+
+    this.gui.exitBtn := this.gui.AddButton("WP HP X+" this.MARGIN, "Exit")
+    this.gui.exitBtn.SetColor(this.theme.buttons.danger.bg, this.theme.buttons.danger.fg)
+    this.gui.exitBtn.OnEvent("Click", (*) => ExitApp())
 
     RichCode.MenuItems := []
-    this.rc := RichCode(this.gui, this.settings, "xm w" this.ini.contents.general.w " h" this.ini.contents.general.h)
+    this.rc := RichCode(this.gui, this.settings, "Section XM W" this.ini.contents.general.w " H" this.ini.contents.general.h)
     DarkScrollBars()
     DarkInactiveState()
 
     this.gui.Show("x" A_ScreenWidth " y" A_ScreenHeight " NoActivate")
 
+    Clear()
+    {
+      RichDump.log := ""
+      this.rc.Text := RichDump.log
+    }
+    StopOnErrorHandler()
+    {
+      this.ini.contents.general.stopOnError := this.gui.stopOnError.value
+      this.ini.save()
+    }
     DarkInactiveState() {
       DllCall("dwmapi\DwmSetWindowAttribute", "Ptr", this.gui.hwnd, "int", this.DWMWA_USE_IMMERSIVE_DARK_MODE, "int*", 1, "int", 4)
     }
     DarkScrollBars() {
       DllCall("uxtheme\SetWindowTheme", "Ptr", this.rc._control.hwnd, "Str", "DarkMode_Explorer", "Ptr", 0)
     }
-    SizeContents() {
+    PositionContents() {
       this.gui.GetClientPos(,, &innerWidth, &innerHeight)
-      this.rc._control.Move(,, innerWidth - (this.MARGIN * 2), innerHeight - (this.MARGIN * 2))
+      this.gui.restartBtn.Move(innerWidth - (this.MARGIN * 2) - (this.BUTTONS.W * 2))
+      this.gui.exitBtn.Move(innerWidth - this.MARGIN - this.BUTTONS.W)
+      this.rc._control.Move(,, innerWidth - (this.MARGIN * 2), innerHeight - (this.MARGIN * 3) - this.BUTTONS.H)
       this.setScrollBars()
+    }
+  }
+
+  pauseHandler(isError := 0)
+  {
+    static pauseState := 0
+
+    if (pauseState ^= 1) {
+      this.gui.pauseBtn.text := "Resume"
+      this.gui.pauseBtn.SetColor(this.theme.buttons.success.bg, this.theme.buttons.success.fg)
+      RichDump.log .= " * " (isError ? "Stopped" : "Paused") " * `n"
+    } else {
+      this.gui.pauseBtn.text := "Pause"
+      this.gui.pauseBtn.SetColor(this.theme.buttons.danger.bg, this.theme.buttons.danger.fg)
+      RichDump.log .= " * Resumed * `n"
+    }
+    this.rc.Text := RichDump.log
+    ControlSend("^{End}", this.rc._control)
+
+    this.gui.pauseBtn.Redraw()
+    SetTimer(Suspauser, -1) ;this allows the pause btn time to redraw
+
+    Suspauser()
+    {
+      Pause(pauseState)
+      if (isError || ! pauseState) {
+        Suspend(pauseState)
+      }
     }
   }
 
@@ -192,10 +296,12 @@ class RichDump
 
   showGui()
   {
+    firstShow := 1
     if (this.gui == "") {
       this.loadGui()
     } else {
       this.gui.show("NoActivate")
+      firstShow := 0
     }
     if (RichDump.log == "") {
       RichDump.log := this.EMPTY_LOG_MESSAGE
@@ -214,12 +320,14 @@ class RichDump
       }
     }
     SetGuiSizeAndPosition() {
-      this.gui.Move(
-        this.ini.contents.general.x,
-        this.ini.contents.general.y,
-        this.ini.contents.general.w,
-        this.ini.contents.general.h,
-      )
+      if (firstShow) {
+        this.gui.Move(
+          this.ini.contents.general.x,
+          this.ini.contents.general.y,
+          this.ini.contents.general.w,
+          this.ini.contents.general.h,
+        )
+      }
     }
     ScrollToEnd() {
       if (this.allowScrollToEnd) {
