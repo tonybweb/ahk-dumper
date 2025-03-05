@@ -255,15 +255,12 @@ class RichDump
     ControlSend("^{End}", this.rc._control)
 
     this.gui.pauseBtn.Redraw()
-    SetTimer(Suspauser, -1) ;this allows the pause btn time to redraw
 
-    Suspauser()
-    {
-      Pause(pauseState)
-      if (isError || ! pauseState) {
-        Suspend(pauseState)
-      }
+    if (isError || ! pauseState) {
+      Suspend(pauseState)
     }
+    Sleep(250) ;give the pause btn time to redraw
+    Pause(pauseState)
   }
 
   prepareLog()
