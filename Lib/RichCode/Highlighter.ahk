@@ -59,7 +59,7 @@ class Highlighter {
 	)
 	static builtins := "A_\w+|true|false|this|super"
   static errors :="Error|Specifically|Call Stack|Line #\d+"
-  static success := " \* Resumed \* "
+  static success := " \* Resumed \* | \*\* [^\n|*]* \*\* "
   static danger := " \* [^\n|*]* \* |\d+:"
 	static needle := (
 		"ims)"

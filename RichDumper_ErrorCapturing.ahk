@@ -2,7 +2,4 @@
 
 #Include "RichDumper.ahk"
 
-OnError RichDumperLogError
-RichDumperLogError(exception, mode) {
-  return richDumper.captureError(exception, mode)
-}
+richDumper.enableErrorCapturing()

@@ -9,6 +9,8 @@
 
 richDumper := RichDump()
 dumpGui(values*) => richDumper.dump(values*)
+dumpGuiSuccess(str) => richDumper.dumpHighlight(str)
+dumpGuiDanger(str) => richDumper.dumpHighlight(str, "danger")
 
 class RichDump
 {
@@ -32,6 +34,7 @@ class RichDump
   WS_VSCROLL := 0x200000
 
   allowScrollToEnd := true
+  errorCapturing := 0
   iniFile := "dumper.ini"
   log := {
     lines: 0,
@@ -86,18 +89,23 @@ class RichDump
         SaveDefaults()
       }
 
+      this.iniSection := this.ini.contents.%A_ScriptName%
+
       SaveDefaults() {
         this.ini.contents := {
-          general: iniDefaults
+          %A_ScriptName%: iniDefaults
         }
         this.ini.save()
       }
       AddMissingDefaults()
       {
         saveIni := false
+        if (! this.ini.contents.HasProp(A_ScriptName)) {
+          this.ini.contents.%A_ScriptName% := {}
+        }
         for propertyName, value in iniDefaults.OwnProps() {
-          if (! this.ini.contents.general.HasProp(propertyName)) {
-            this.ini.contents.general.%propertyName% := value
+          if (! this.ini.contents.%A_ScriptName%.HasProp(propertyName)) {
+            this.ini.contents.%A_ScriptName%.%propertyName% := value
             saveIni := true
           }
         }
@@ -115,10 +123,10 @@ class RichDump
         if (this.gui != "") {
           if (hwnd == this.gui.hwnd) {
             this.gui.GetPos(
-              &this.ini.contents.general.x,
-              &this.ini.contents.general.y,
-              &this.ini.contents.general.w,
-              &this.ini.contents.general.h,
+              &this.iniSection.x,
+              &this.iniSection.y,
+              &this.iniSection.w,
+              &this.iniSection.h,
             )
             this.ini.save()
           }
@@ -156,7 +164,7 @@ class RichDump
     RichDump.log .= exception.Stack ? "`n" 'Call Stack: `n' exception.Stack : ""
     this.showGui()
 
-    if (this.ini.contents.general.stopOnError) {
+    if (this.iniSection.stopOnError) {
       this.pauseHandler(1)
     }
     return true
@@ -165,14 +173,28 @@ class RichDump
   dump(values*)
   {
     this.prepareLog()
-    if (values.Length) {
-      for value in values {
-        RichDump.log .= dumpString(value)
-      }
-    } else {
-      RichDump.log .= dumpString(values)
+    for value in values {
+      RichDump.log .= dumpString(value)
     }
     this.showGui()
+  }
+
+  dumpHighlight(str, highlight := "success")
+  {
+    this.prepareLog()
+    wrapper := (highlight == "success" ? " ** " : " * ")
+    RichDump.log .= wrapper str wrapper "`n"
+    this.showGui()
+  }
+
+  enableErrorCapturing()
+  {
+    this.errorCapturing := 1
+    OnError(LogError)
+
+    LogError(exception, mode) {
+      return this.captureError(exception, mode)
+    }
   }
 
   loadGui()
@@ -192,11 +214,13 @@ class RichDump
     this.gui.pauseBtn.SetColor(this.theme.buttons.danger.bg, this.theme.buttons.danger.fg)
     this.gui.pauseBtn.OnEvent("Click", (*) => this.pauseHandler())
 
-    this.gui.stopOnError := this.gui.AddCheckBox(
-      "H" this.BUTTONS.H " X+" this.MARGIN " Checked" (this.ini.contents.general.stopOnError ?? "0"),
-      "Stop On Error"
-    )
-    this.gui.stopOnError.OnEvent("Click", (*) => StopOnErrorHandler())
+    if (this.errorCapturing) {
+      this.gui.stopOnError := this.gui.AddCheckBox(
+        "H" this.BUTTONS.H " X+" this.MARGIN " Checked" (this.iniSection.stopOnError ?? "0"),
+        "Stop On Error"
+      )
+      this.gui.stopOnError.OnEvent("Click", (*) => StopOnErrorHandler())
+    }
 
     this.gui.restartBtn := this.gui.AddButton("X+" this.MARGIN " W" this.BUTTONS.W  " H" this.BUTTONS.H, "Restart")
     this.gui.restartBtn.SetColor(this.theme.buttons.default.bg, this.theme.buttons.default.fg)
@@ -207,7 +231,7 @@ class RichDump
     this.gui.exitBtn.OnEvent("Click", (*) => ExitApp())
 
     RichCode.MenuItems := []
-    this.rc := RichCode(this.gui, this.settings, "Section XM W" this.ini.contents.general.w " H" this.ini.contents.general.h)
+    this.rc := RichCode(this.gui, this.settings, "Section XM W" this.iniSection.w " H" this.iniSection.h)
     DarkScrollBars()
     DarkInactiveState()
 
@@ -220,7 +244,7 @@ class RichDump
     }
     StopOnErrorHandler()
     {
-      this.ini.contents.general.stopOnError := this.gui.stopOnError.value
+      this.iniSection.stopOnError := this.gui.stopOnError.value
       this.ini.save()
     }
     DarkInactiveState() {
@@ -319,10 +343,10 @@ class RichDump
     SetGuiSizeAndPosition() {
       if (firstShow) {
         this.gui.Move(
-          this.ini.contents.general.x,
-          this.ini.contents.general.y,
-          this.ini.contents.general.w,
-          this.ini.contents.general.h,
+          this.iniSection.x,
+          this.iniSection.y,
+          this.iniSection.w,
+          this.iniSection.h,
         )
       }
     }
