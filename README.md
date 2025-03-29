@@ -119,7 +119,7 @@ MsgBox(str, "obj converted to string output")
 ```
 dumpMsgBox(obj)
 ```
-![dumpToMsgBox Screenshot](Resources\dumpToMsgBox.png)
+![dumpToMsgBox Screenshot](.\Resources\dumpToMsgBox.png)
 ### Dump and Exit App
 ```
 dumpExit("asdf")
