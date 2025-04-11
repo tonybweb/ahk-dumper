@@ -1,4 +1,4 @@
-#Requires AutoHotkey v2
+#Requires AutoHotkey >= v2.1-
 
 #Include "Lib\ColorButton.ahk\ColorButton.ahk"
 #Include "Dumper.ahk"
@@ -11,6 +11,8 @@ richDumper := RichDump()
 dumpGui(values*) => richDumper.dump(values*)
 dumpGuiSuccess(str) => richDumper.dumpHighlight(str)
 dumpGuiDanger(str) => richDumper.dumpHighlight(str, "danger")
+dumpGuiQuiet(on := true) => richDumper.quietDumps := on
+dumpGuiHotkey(hk) => richDumper.setHotkey(hk)
 
 class RichDump
 {
@@ -41,6 +43,7 @@ class RichDump
     lineLength: 0,
   }
   gui := ""
+  quietDumps := 0
   settings := {
     TabSize: 2,
     Indent: "  ",
@@ -170,13 +173,23 @@ class RichDump
     return true
   }
 
+  destroyGui()
+  {
+    this.rc.__Delete()
+    this.rc := ""
+    this.gui.destroy()
+    this.gui := ""
+  }
+
   dump(values*)
   {
     this.prepareLog()
     for value in values {
       RichDump.log .= dumpString(value)
     }
-    this.showGui()
+    if (! this.quietDumps) {
+      this.showGui()
+    }
   }
 
   dumpHighlight(str, highlight := "success")
@@ -184,7 +197,9 @@ class RichDump
     this.prepareLog()
     wrapper := (highlight == "success" ? " ** " : " * ")
     RichDump.log .= wrapper str wrapper "`n"
-    this.showGui()
+    if (! this.quietDumps) {
+      this.showGui()
+    }
   }
 
   enableErrorCapturing()
@@ -234,6 +249,9 @@ class RichDump
     this.rc := RichCode(this.gui, this.settings, "Section XM W" this.iniSection.w " H" this.iniSection.h)
     DarkScrollBars()
     DarkInactiveState()
+
+    this.gui.OnEvent("Close", (*) => this.destroyGui())
+    this.gui.OnEvent("Escape", (*) => this.destroyGui())
 
     this.gui.Show("x" A_ScreenWidth " y" A_ScreenHeight " NoActivate")
 
@@ -293,6 +311,11 @@ class RichDump
     if (RichDump.log == this.EMPTY_LOG_MESSAGE) {
       RichDump.log := ""
     }
+  }
+
+  setHotkey(hk)
+  {
+    Hotkey(hk, (*) => this.toggleGui())
   }
 
   setScrollBars()
@@ -356,6 +379,15 @@ class RichDump
         Sleep(1)
         ControlSend("^{End}", this.rc._control)
       }
+    }
+  }
+
+  toggleGui()
+  {
+    if (this.gui == "") {
+      this.showGui()
+    } else {
+      this.destroyGui()
     }
   }
 }

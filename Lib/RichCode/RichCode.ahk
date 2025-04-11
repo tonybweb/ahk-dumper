@@ -214,7 +214,7 @@ class RichCode
 		this.SendMsg(0x43C, 0, bufpIRichEditOle) ; EM_GETOLEINTERFACE
 		this.pIRichEditOle := NumGet(bufpIRichEditOle, "UPtr")
 		this.IRichEditOle := ComValue(9, this.pIRichEditOle, 1)
-		; ObjAddRef(this.pIRichEditOle)
+		ObjAddRef(this.pIRichEditOle)
 		this.pITextDocument := ComObjQuery(this.IRichEditOle, RichCode.IID_ITextDocument)
 		this.ITextDocument := ComValue(9, this.pITextDocument, 1)
 		; ObjAddRef(this.pITextDocument)
@@ -243,15 +243,17 @@ class RichCode
 	__Delete()
 	{
 		; Release the ITextDocument object
-		this.ITextDocument := unset, ObjRelease(this.pITextDocument)
-		this.IRichEditOle := unset, ObjRelease(this.pIRichEditOle)
+		this.ITextDocument := ""
+    ObjRelease(ObjPtr(this.pITextDocument))
+		this.IRichEditOle := ""
+    ObjRelease(this.pIRichEditOle)
 
 		; Release the OnMessage handlers
 		OnMessage(0x100, this.OnMessageBound, 0) ; WM_KEYDOWN
 		OnMessage(0x205, this.OnMessageBound, 0) ; WM_RBUTTONUP
 
 		; Destroy the right click menu
-		this.menu := unset
+		this.menu := ""
 	}
 
 	__Call(Name, Params) => this._control.%Name%(Params*)
