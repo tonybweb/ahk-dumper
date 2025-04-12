@@ -50,7 +50,7 @@ class RichView
   {
     this.rc.__Delete()
     this.rc := ""
-    this.gui.destroy()
+    this.gui.Destroy()
     this.gui := ""
   }
 

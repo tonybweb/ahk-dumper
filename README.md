@@ -191,3 +191,9 @@ That's fine, use whatever font you want but you'll have to adjust some values in
   fontSize: 14,
   lineHeight: 31,
 ```
+## Special Thanks
+[RichCode](https://github.com/G33kDude/RichCode.ahk/tree/v2-main) v2 branch by [G33kDude](https://github.com/G33kDude)
+
+[ColorButton](https://github.com/nperovic/ColorButton.ahk) by Nikola [nperovic](https://gist.github.com/nperovic)
+
+[Panaku](https://github.com/The-CoDingman) in AHK Discord
