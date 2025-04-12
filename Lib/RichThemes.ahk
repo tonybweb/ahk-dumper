@@ -1,6 +1,12 @@
 class RichThemes
 {
   static dracula := {
+    charWidth: 11,
+    font: "Fira Code",
+    fontSize: 14,
+    lineHeight: 31,
+    margin: 16,
+
     guiMarginColor: 0x282A36,
     FGColor: 0xFFFFFF,
     BGColor: 0x21222C,
@@ -41,6 +47,12 @@ class RichThemes
     }
   }
   static vsCode := {
+    charWidth: 11,
+    font: "Fira Code",
+    fontSize: 14,
+    lineHeight: 31,
+    margin: 16,
+
     guiMarginColor: 0x1E1E1E,
     FGColor: 0x9CDCFE,
     BGColor: 0x181818,

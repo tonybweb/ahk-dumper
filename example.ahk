@@ -1,5 +1,5 @@
 #Requires AutoHotkey v2
-#Include ".\RichDumper.ahk"
+#Include ".\Dumper.ahk"
 
 str := "string"
 dump(str)
@@ -27,4 +27,3 @@ obj.objInObj := obj ;recursion protected
 dump(obj)
 
 dumpMsgBox(obj)
-dumpGui(obj)
