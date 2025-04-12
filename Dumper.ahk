@@ -1,6 +1,5 @@
 #Requires AutoHotkey v2
 #Include "Lib\Ansi.ahk"
-#Include "Lib\Arrays.ahk"
 
 dump(values*) => Dumper().setTheme("dracula").Call(values*)
 dumpAnsi(values*) => Dumper(3).setTheme("dracula").Call(values*).outputString
@@ -61,7 +60,7 @@ class Dumper
   {
     this.mode := mode
 
-    if (this.ANSI_MODES.Contains(this.mode)) {
+    if (this.contains(this.ANSI_MODES, this.mode)) {
       this.ansi := Ansi()
     }
   }
@@ -182,7 +181,7 @@ class Dumper
 
   isRecursionProtected(value)
   {
-    return this.protectedPtrs.Contains(ObjPtr(value))
+    return this.contains(this.protectedPtrs, ObjPtr(value))
   }
 
   msgBox()
@@ -218,5 +217,14 @@ class Dumper
   resetAnsi()
   {
     OutputDebug(this.ansi.escCode("-fg -bg"))
+  }
+
+  contains(haystack, needle) {
+    for (k,v in haystack) {
+      if (needle == v) {
+        return true
+      }
+    }
+    return false
   }
 }
