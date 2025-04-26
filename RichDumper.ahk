@@ -21,8 +21,11 @@ richDumper.enableErrorCapturing()
  */
 
 dumpGui(values*) => richDumper.dump(values*)
+dumpGuiQuiet(values*) => richDumper.quiet().dump(values*).quietOff()
 dumpGuiSuccess(str) => richDumper.dumpHighlight(str)
+dumpGuiSuccessQuiet(str) => richDumper.quiet().dumpHighlight(str).quietOff()
 dumpGuiDanger(str) => richDumper.dumpHighlight(str, "danger")
+dumpGuiDangerQuiet(str) => richDumper.quiet().dumpHighlight(str, "danger").quietOff()
 
 class RichDump
 {
@@ -33,6 +36,9 @@ class RichDump
   WM_EXITSIZEMOVE := 0x0232
 
   quietDumps := 0
+
+  quiet() => this.enableQuietDumps()
+  quietOff() => this.enableQuietDumps(0)
 
   __New(theme := this.DEFAULT_THEME) {
 
@@ -108,6 +114,8 @@ class RichDump
     if (! this.quietDumps) {
       this.view.show()
     }
+
+    return this
   }
 
   dumpHighlight(str, highlight := "success")
@@ -118,6 +126,8 @@ class RichDump
     if (! this.quietDumps) {
       this.view.show()
     }
+
+    return this
   }
 
   enableErrorCapturing()
