@@ -21,14 +21,14 @@ richDumper.enableErrorCapturing()
  */
 
 dumpGui(values*) => richDumper.dump(values*)
+dumpGuiPause(values*) => richDumper.dump(values*).view.pauseHandler(0)
 dumpGuiQuiet(values*) => richDumper.quiet().dump(values*).quietOff()
 dumpGuiSuccess(str) => richDumper.dumpHighlight(str)
 dumpGuiSuccessQuiet(str) => richDumper.quiet().dumpHighlight(str).quietOff()
 dumpGuiDanger(str) => richDumper.dumpHighlight(str, "danger")
 dumpGuiDangerQuiet(str) => richDumper.quiet().dumpHighlight(str, "danger").quietOff()
 
-class RichDump
-{
+class RichDump {
   static log := ""
   static errorCapturing := 0
 
@@ -41,7 +41,6 @@ class RichDump
   quietOff() => this.enableQuietDumps(0)
 
   __New(theme := this.DEFAULT_THEME) {
-
     this.ini := RichIni()
     RegisterSystemCallbacks()
     this.view := RichView(theme, this.ini)
@@ -68,8 +67,7 @@ class RichDump
     }
   }
 
-  addToSysTray()
-  {
+  addToSysTray() {
     A_TrayMenu.Insert("E&xit", "&Dumper", (*) => this.view.show())
     A_TrayMenu.Insert("&Dumper", "")
     A_TrayMenu.Insert("E&xit", "")
@@ -105,8 +103,7 @@ class RichDump
     return true
   }
 
-  dump(values*)
-  {
+  dump(values*) {
     this.view.prepareLog()
     for value in values {
       RichDump.log .= dumpString(value)
@@ -118,8 +115,7 @@ class RichDump
     return this
   }
 
-  dumpHighlight(str, highlight := "success")
-  {
+  dumpHighlight(str, highlight := "success") {
     this.view.prepareLog()
     wrapper := (highlight == "success" ? " ** " : " * ")
     RichDump.log .= wrapper str wrapper "`n"
@@ -130,8 +126,7 @@ class RichDump
     return this
   }
 
-  enableErrorCapturing()
-  {
+  enableErrorCapturing() {
     RichDump.errorCapturing := 1
     OnError(LogError)
 
@@ -142,15 +137,13 @@ class RichDump
     return this
   }
 
-  enableQuietDumps(on := 1)
-  {
+  enableQuietDumps(on := 1) {
     this.quietDumps := on
 
     return this
   }
 
-  setHotkey(hk, hotIfCallback := (*) => true)
-  {
+  setHotkey(hk, hotIfCallback := (*) => true) {
     HotIf((*) => hotIfCallback())
       Hotkey(hk, (*) => this.view.toggle())
     HotIf

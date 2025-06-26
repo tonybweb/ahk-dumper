@@ -2,8 +2,7 @@
 #Include "RichCode\Highlighter.ahk"
 #Include "RichCode\RichCode.ahk"
 
-class RichView
-{
+class RichView {
   EMPTY_LOG_MESSAGE := ";log empty, use ``dumpGui()`` to output to this window`n`n`n`n`n"
 
   BUTTONS := {
@@ -33,8 +32,7 @@ class RichView
     Highlighter: Highlighter,
   }
 
-  __New(theme, ini)
-  {
+  __New(theme, ini) {
     this.theme := RichThemes.%theme%
     this.ini := ini
 
@@ -46,16 +44,14 @@ class RichView
     this.rcSettings.colors := this.theme.colors
   }
 
-  destroy()
-  {
+  destroy() {
     this.rc.__Delete()
     this.rc := ""
     this.gui.Destroy()
     this.gui := ""
   }
 
-  load()
-  {
+  load() {
     this.gui := Gui("+Resize +AlwaysOnTop +MinSize590x180", "Dumper - " A_ScriptName)
     this.gui.SetFont("s" this.BUTTONS.FONT_SIZE " cFFFFFF")
     this.gui.MarginX := this.gui.MarginY := this.theme.margin
@@ -96,13 +92,11 @@ class RichView
 
     this.gui.Show("x" A_ScreenWidth " y" A_ScreenHeight " NoActivate")
 
-    Clear()
-    {
+    Clear() {
       RichDump.log := ""
       this.rc.Text := RichDump.log
     }
-    StopOnErrorHandler()
-    {
+    StopOnErrorHandler() {
       this.ini.scriptName.stopOnError := this.gui.stopOnError.value
       this.ini.save()
     }
@@ -121,8 +115,7 @@ class RichView
     }
   }
 
-  setScrollBars()
-  {
+  setScrollBars() {
     this.rc._control.GetPos( , , &richWidth, &richHeight)
 
     textWidth := this.theme.charWidth * this.log.lineLength
@@ -141,8 +134,7 @@ class RichView
     this.rc._control.Redraw()
   }
 
-  show()
-  {
+  show() {
     firstShow := 1
     if (this.gui == "") {
       this.load()
@@ -185,8 +177,7 @@ class RichView
     }
   }
 
-  pauseHandler(isError := 0)
-  {
+  pauseHandler(isError := 0) {
     static pauseState := 0
 
     if (pauseState ^= 1) {
@@ -210,16 +201,14 @@ class RichView
     Pause(pauseState)
   }
 
-  prepareLog()
-  {
+  prepareLog() {
     this.allowScrollToEnd := true
     if (RichDump.log == this.EMPTY_LOG_MESSAGE) {
       RichDump.log := ""
     }
   }
 
-  toggle()
-  {
+  toggle() {
     if (this.gui == "") {
       this.show()
     } else {

@@ -7,9 +7,9 @@ dumpExit(values*) => dump(values*).exit()
 dumpLoud(values*) => Dumper().setTheme("loud").Call(values*)
 dumpMsgBox(values*) => Dumper(2).Call(values*).msgBox()
 dumpString(values*) => Dumper(2).Call(values*).outputString
+dumpTip(values*) => Dumper(2).Call(values*).toolTip()
 
-class Dumper
-{
+class Dumper {
   static RECURSION_NOTE := " * RECURSION PROTECTED * "
   INDENT_VALUE := "  "
   MODE_CONSOLE := 1
@@ -56,8 +56,7 @@ class Dumper
     warning: ""
   }
 
-  __New(mode := this.MODE_CONSOLE)
-  {
+  __New(mode := this.MODE_CONSOLE) {
     this.mode := mode
 
     if (this.contains(this.ANSI_MODES, this.mode)) {
@@ -65,8 +64,7 @@ class Dumper
     }
   }
 
-  Call(values*)
-  {
+  Call(values*) {
     if (values.Length) {
       for value in values {
         this.protectedPtrs := []
@@ -82,8 +80,7 @@ class Dumper
     return this
   }
 
-  dump(value?, level := 1)
-  {
+  dump(value := unset, level := 1) {
     if (IsSet(value)) {
       if (IsObject(value)) {
         if(this.isRecursionProtected(value)) {
@@ -105,8 +102,7 @@ class Dumper
     }
   }
 
-  dumpObject(value, level := 1)
-  {
+  dumpObject(value, level := 1) {
     this.protectedPtrs.InsertAt(level, ObjPtr(value))
 
     LB := "`n"
@@ -129,7 +125,7 @@ class Dumper
           "[" key "]"
           this.theme.operator ": "
         )
-        this.dump(val, level+1)
+        this.dump(val ?? unset, level+1)
 
         if (A_Index < itemLength || A_Index < mapCount || propCount) {
           this.output(",")
@@ -159,13 +155,11 @@ class Dumper
     }
   }
 
-  exit()
-  {
+  exit() {
     ExitApp
   }
 
-  formatValue(value)
-  {
+  formatValue(value) {
     switch(Type(value)) {
       case "String":
         return this.theme.string '"' value '"'
@@ -174,23 +168,19 @@ class Dumper
     }
   }
 
-  indent(level)
-  {
+  indent(level) {
     return StrReplace(Format("{:" level "}",""), " ", this.INDENT_VALUE)
   }
 
-  isRecursionProtected(value)
-  {
+  isRecursionProtected(value) {
     return this.contains(this.protectedPtrs, ObjPtr(value))
   }
 
-  msgBox()
-  {
-    MsgBox(this.outputString, "dumpToMsgBox")
+  msgBox() {
+    MsgBox(this.outputString, "dumpMsgBox")
   }
 
-  output(value, color := "")
-  {
+  output(value, color := "") {
     switch (this.mode) {
       case this.MODE_CONSOLE:
         OutputDebug(color value this.theme.default)
@@ -201,8 +191,7 @@ class Dumper
     }
   }
 
-  setTheme(theme := "dracula")
-  {
+  setTheme(theme := "dracula") {
     this.theme := {
       default: this.ansi.escCode(this.THEMES.%theme%.default),
       string: this.ansi.escCode(this.THEMES.%theme%.string),
@@ -214,9 +203,31 @@ class Dumper
     return this
   }
 
-  resetAnsi()
-  {
+  resetAnsi() {
     OutputDebug(this.ansi.escCode("-fg -bg"))
+  }
+
+  toolTip() {
+    static log := "", endTime := 0, hideDelay := 5000,
+      lastX := -1, lastY := -1, lastLog := "", offset := 28
+
+    endTime := A_TickCount + hideDelay
+    log := Trim(log "`n" this.outputString, "`n ")
+    SetTimer(Update, 15)
+
+    Update() {
+      if (A_TickCount >= endTime) {
+        SetTimer(, 0)
+        log := "", lastX := -1, lastY := -1, lastLog := ""
+        ToolTip()
+        return
+      }
+      MouseGetPos(&x, &y), x += offset, y += offset
+      if (lastX != x || lastY != y || lastLog != log) {
+        ToolTip(log,x,y)
+        lastX := x, lastY := y, lastLog := log
+      }
+    }
   }
 
   contains(haystack, needle) {
