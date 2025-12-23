@@ -33,10 +33,10 @@ While you can use Dumper with AHK 2.0 the GUI requires 2.1 alpha. Don't be afrai
 ## Examples
 ### GUI Output
 ```
-#Include <ahk-dumper\RichDumper>
+#Include <ahk-dumper\DumperGui>
 
 str := "foobar"
-dumpGui(str)
+dump.gui(str)
 
 >
 "foobar"
@@ -107,17 +107,17 @@ dump(obj)
 ```
 ### String Output
 ```
-str := dumpString(obj)
+str := dump.string(obj)
 MsgBox(str, "obj converted to string output")
 ```
 ### MsgBox Output
 ```
-dumpMsgBox(obj)
+dump.msgBox(obj)
 ```
 ![dumpToMsgBox Screenshot](Resources/dumpToMsgBox.png)
 ### Dump and Exit App
 ```
-dumpExit("asdf")
+dump("asdf").exit()
 
 >
 "asdf"
@@ -137,43 +137,42 @@ dump(str, i, ary, obj)
 There are two ways to include Dumper, choose only 1:
 ```
 #Include <ahk-dumper\Dumper> ;minimalist, no GUI support, debug console support only
-#Include <ahk-dumper\RichDumper> ;Includes GUI, requires 2.1 alpha
+#Include <ahk-dumper\DumperGui> ;Includes GUI, requires 2.1 alpha
 ```
 ### Change GUI Theme
-You can change the GUI theme by modifying the `richDumper := RichDump("dracula")` line at the top of the `RichDumper.ahk` file. Available options are `"dracula"` and `"vsCode"`... or make your own in the `RichThemes.ahk` file:
+You can change the GUI theme by modifying the `GUI_THEME := "dracula"` line at the top of the `DumperGui.ahk` file. Available options are `"dracula"` and `"vsCode"`... or make your own in the `GuiThemes.ahk` file:
 ```
-richDumper := RichDump('vsCode')
+GUI_THEME := "vsCode",
 ```
 ### Change Console Theme
-You can change the console theme by modifying the `setTheme` section at the top of the `Dumper.ahk` file. Available options are `"dracula"` and `"vsCode"`... or make your own:
+You can change the console theme by modifying the `CONSOLE_THEME` at the top of the `Dumper.ahk` file. Available options are `"dracula"` and `"vsCode"`... or make your own:
 ```
-dump(values*) => Dumper().setTheme("vsCode").Call(values*)
+static CONSOLE_THEME := "vsCode",
 ```
 ### Add GUI to SysTray
-By default the GUI will automatically open anytime you call `dumpGui()`. This can be handy if you're quietly dumping or you just want to get back to your log after closing it.
+By default the GUI will automatically open anytime you call `dumpGui()`. This option adds a menu item to Dumper in your AHK system tray icon and can be handy if you're quietly dumping or you just want to get back to your log after closing it.
 ```
-richDumper.addToSysTray()
+dump.gui.addToSysTray()
 ```
 ### Disable GUI Error Reporting
-Edit Richdumper.ahk and remove or comment out the `richDumper.enableErrorCapturing()` line
+Edit DumperGui.ahk and remove or comment out the `Dump.gui.enableErrorCapturing()` line
 ```
-richDumper := RichDump("dracula")
-;richDumper.enableErrorCapturing()
+;Dump.gui.enableErrorCapturing()
 ```
 ### Turn On Quiet Dumps
 If you want to log dumps and look at the output later you can turn on quiet dumping.
 ```
-richDumper.enableQuietDumps()
+dump.gui.enableQuietDumps()
 ```
 ### Enable GUI Toggle Hotkey
 If you're wafting in quiet dumps you might want to set a hotkey to make the GUI log more easily accessible. This method also accepts a `hotIfCallback` option.
 ```
-richDumper.setHotkey("F1")
+dump.gui.setHotkey("F1")
 ```
 ### GUI Fluent Option Chaining
 All of these GUI options can be fluently chained like this:
 ```
- richDumper.enableQuietDumps().addToSysTray().setHotkey("F1", () {
+ dump.gui.enableQuietDumps().addToSysTray().setHotkey("F1", () {
    return WinActive("ahk_exe Code.exe")
  })
 ```
@@ -184,7 +183,7 @@ Once a debugger extension is installed and configured `F5` will run your current
 ### I don't have the Fira Code font, where do I get it?
 It's in the Resources\FiraCode font folder. Install it and you should be all set.
 ### I don't like the Fira Code font, I want to use another font.
-That's fine, use whatever font you want but you'll have to adjust some values in the `RichThemes.ahk` file. If you don't adjust these the show/hide scrollbar functionality won't work correctly. Relevant variables:
+That's fine, use whatever font you want but you'll have to adjust some values in the `GuiThemes.ahk` file. If you don't adjust these the show/hide scrollbar functionality won't work correctly. Relevant variables:
 ```
   charWidth: 11,
   font: "Fira Code",

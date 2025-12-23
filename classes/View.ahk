@@ -1,9 +1,9 @@
-#Include "ColorButton.ahk\ColorButton.ahk"
-#Include "RichCode\Highlighter.ahk"
-#Include "RichCode\RichCode.ahk"
+#Include "..\Lib\ColorButton.ahk\ColorButton.ahk"
+#Include "..\Lib\RichCode\Highlighter.ahk"
+#Include "..\Lib\RichCode\RichCode.ahk"
 
-class RichView {
-  EMPTY_LOG_MESSAGE := ";log empty, use ``dumpGui()`` to output to this window`n`n`n`n`n"
+class DumperView {
+  EMPTY_LOG_MESSAGE := ";log empty, use ``dump.gui()`` to output to this window`n`n`n`n`n"
 
   BUTTONS := {
     FONT_SIZE: 12,
@@ -33,7 +33,7 @@ class RichView {
   }
 
   __New(theme, ini) {
-    this.theme := RichThemes.%theme%
+    this.theme := DumperGuiThemes.%theme%
     this.ini := ini
 
     this.rcSettings.Font.Typeface := this.theme.font
@@ -65,7 +65,7 @@ class RichView {
     this.gui.pauseBtn.SetColor(this.theme.buttons.danger.bg, this.theme.buttons.danger.fg)
     this.gui.pauseBtn.OnEvent("Click", (*) => this.pauseHandler())
 
-    if (RichDump.errorCapturing) {
+    if (Dump.gui.errorCapturing) {
       this.gui.stopOnError := this.gui.AddCheckBox(
         "H" this.BUTTONS.H " X+" this.theme.margin " Checked" (this.ini.scriptName.stopOnError ?? "0"),
         "Stop On Error"
@@ -93,8 +93,8 @@ class RichView {
     this.gui.Show("x" A_ScreenWidth " y" A_ScreenHeight " NoActivate")
 
     Clear() {
-      RichDump.log := ""
-      this.rc.Text := RichDump.log
+      Dump.gui.log := ""
+      this.rc.Text := Dump.gui.log
     }
     StopOnErrorHandler() {
       this.ini.scriptName.stopOnError := this.gui.stopOnError.value
@@ -142,16 +142,16 @@ class RichView {
       this.gui.show("NoActivate")
       firstShow := 0
     }
-    if (RichDump.log == "") {
-      RichDump.log := this.EMPTY_LOG_MESSAGE
+    if (Dump.gui.log == "") {
+      Dump.gui.log := this.EMPTY_LOG_MESSAGE
     }
-    this.rc.Text := RichDump.log
+    this.rc.Text := Dump.gui.log
     SetLogProperties()
     SetGuiSizeAndPosition()
     ScrollToEnd()
 
     SetLogProperties() {
-      Loop parse RichDump.log, "`n", "`r" {
+      Loop parse Dump.gui.log, "`n", "`r" {
         if (this.log.lineLength <= currentLength := StrLen(A_LoopField)) {
           this.log.lineLength := currentLength
         }
@@ -183,13 +183,13 @@ class RichView {
     if (pauseState ^= 1) {
       this.gui.pauseBtn.text := "Resume"
       this.gui.pauseBtn.SetColor(this.theme.buttons.success.bg, this.theme.buttons.success.fg)
-      RichDump.log .= " * " (isError ? "Stopped" : "Paused") " * `n"
+      Dump.gui.log .= " * " (isError ? "Stopped" : "Paused") " * `n"
     } else {
       this.gui.pauseBtn.text := "Pause"
       this.gui.pauseBtn.SetColor(this.theme.buttons.danger.bg, this.theme.buttons.danger.fg)
-      RichDump.log .= " * Resumed * `n"
+      Dump.gui.log .= " * Resumed * `n"
     }
-    this.rc.Text := RichDump.log
+    this.rc.Text := Dump.gui.log
     ControlSend("^{End}", this.rc._control)
 
     this.gui.pauseBtn.Redraw()
@@ -203,8 +203,8 @@ class RichView {
 
   prepareLog() {
     this.allowScrollToEnd := true
-    if (RichDump.log == this.EMPTY_LOG_MESSAGE) {
-      RichDump.log := ""
+    if (Dump.gui.log == this.EMPTY_LOG_MESSAGE) {
+      Dump.gui.log := ""
     }
   }
 

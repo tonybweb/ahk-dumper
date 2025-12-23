@@ -1,5 +1,4 @@
-class RichThemes
-{
+class DumperGuiThemes {
   static dracula := {
     charWidth: 11,
     font: "Fira Code",
@@ -46,7 +45,7 @@ class RichThemes
       KeyNames:     0xCB8DD9,
     }
   }
-  static vsCode := {
+  static vscode := {
     charWidth: 11,
     font: "Fira Code",
     fontSize: 14,

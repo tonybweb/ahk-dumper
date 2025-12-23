@@ -3,7 +3,7 @@
 
 str := "string"
 dump(str)
-OutputDebug(dumpString(str))
+OutputDebug(dump.string(str))
 
 ary := [1, 2, 3]
 dump(ary)
@@ -26,4 +26,4 @@ obj.helloWorld := {
 obj.objInObj := obj ;recursion protected
 dump(obj)
 
-dumpMsgBox(obj)
+dump.msgBox(obj)

@@ -1,4 +1,4 @@
-class RichIni {
+class DumperIni {
   contents := {}
   hasFile := false
   filename := "dumper.ini"
@@ -6,7 +6,7 @@ class RichIni {
   __New()
   {
     if (! A_IsCompiled) {
-      this.filename := StrSplit(A_LineFile, "Lib\RichIni.ahk")[1] this.filename
+      this.filename := StrSplit(A_LineFile, "classes\Ini.ahk")[1] this.filename
     }
 
     if (this.hasFile := FileExist(this.filename)) {
