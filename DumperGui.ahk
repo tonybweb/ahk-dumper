@@ -29,6 +29,7 @@ Dump.gui.enableErrorCapturing()
  * dump.gui.exeTime(callback, iterations)
  *
  * dump.gui.quiet(var, var2, var3 ...)
+ * dump.gui.silent(var, var2, var3 ...)
  * dump.gui.pause(var, var2, var3 ...)
  *
  * dump.gui.success(str)
@@ -160,6 +161,7 @@ class dump extends DumperBase {
     }
 
     static quiet(values*) => this.enableQuietDumps().Call(values*).enableQuietDumps(0)
+    static silent(values*) => this.quiet(values*)
     static pause(values*) => this.Call(values*).view.pauseHandler(0)
 
     static success(str) => this.highlight(str)
